@@ -1,7 +1,13 @@
-import time
 import random
+import time
+from typing import List, Dict
 
-#Puts all chapters into lists, by number of major roles
+from menu import Menu
+
+# I personally try to avoid having floating variables unless they are "Configuration Variables" that do not change during program operation
+CHAPTERS_PER_ROUND = 9
+
+# Puts all chapters into lists, by number of major roles
 majors_2 = ["After You", "Another Direction", "Escape Route", "Ice Breaker", "PDA"]
 majors_3 = ["A New Leaf", "Another Date", "Candied Bacon", "Helping Hands", "Leaving Home",
             "Local Area", "Mutual Assurance", "Pick Me Up", "To The Top", "Wonderland", "Seeing Stars", "Trapped"]
@@ -38,257 +44,209 @@ majors_12 = ["At Loose Ends", "Moving On", "Volume 1 Birthdays"]
 
 majors_13 = ["A Different Side", "Love Again", "Pillow talk"]
 
-#Define lists
-ban_list = []
-select_list = []
-sorted_select = []
-count = 0
-chosen_chapter = None
-element = None
+# Dicts are my favorite thing ever, in other languages I would be using a map/hashmap for this purpose
+# Organizing each chapter by number of parts.
+chapters_by_parts_dict: Dict[int, List[str]] = {
+    2: majors_2,
+    3: majors_3,
+    4: majors_4,
+    5: majors_5,
+    6: majors_6,
+    7: majors_7,
+    8: majors_8,
+    9: majors_9,
+    10: majors_10,
+    11: majors_11,
+    12: majors_12,
+    13: majors_13,
+}
 
-print("Hello Rosie!")
-#Because I like some delay (As a treat)
-time.sleep(1)
 
-#Allows input of chapters to be removed from each chapter list, using "DONE" as the input to continue
-while element != "DONE":
-    element = input("Enter banned chapter: ")
-    if element in majors_2:
-        majors_2.remove(element)
-    elif element in majors_3:
-        majors_3.remove(element)
-    elif element in majors_4:
-        majors_4.remove(element)
-    elif element in majors_5:
-        majors_5.remove(element)
-    elif element in majors_6:
-        majors_6.remove(element)
-    elif element in majors_7:
-        majors_7.remove(element)
-    elif element in majors_8:
-        majors_8.remove(element)
-    elif element in majors_9:
-        majors_9.remove(element)
-    elif element in majors_10:
-        majors_10.remove(element)
-    elif element in majors_11:
-        majors_11.remove(element)
-    elif element in majors_12:
-        majors_12.remove(element)
-    elif element in majors_13:
-        majors_13.remove(element)
+def get_list_of_chapters(
+        num_of_participants: int,
+        list_size: int,
+        banned_chapters: List[str] = None,
+) -> List[str]:
+    """
+    Make a list of all the valid chapters
+    :param num_of_participants: Number of people playing
+    :param banned_chapters: Chapters we want to exclude
+    :return: Sorted list of eligable chapters
+    """
 
-#Allows input for number of readers, which determines the lists from which chapters are pulled
-part_count = input("Please enter number of readers: ")
+    print("Getting list of chapters...")
 
-def list_making ():
-    if part_count == "2":
-        while len(select_list) <9: #Sets number of items to be selected
-            #Selects chapters from major_3 only if all of items in major_2 have been removed
-            if len(majors_2) ==0:
-                #Chooses chapter, adds to new list, then removes from chapter pool
-                chosen_chapter = random.choice(majors_3)
-                select_list.append(chosen_chapter)
-                majors_3.remove(chosen_chapter)
-            else:
-                chosen_chapter = random.choice(majors_2)
-                select_list.append(chosen_chapter)
-                majors_2.remove(chosen_chapter)
+    # If we have not defined a max number of participants, let's just do two roles per player
+    max_roles = num_of_participants * 2
 
-    if part_count == "3":
-        while len(select_list) < 9:
-            count = len(select_list)
-            if count <=6:
-                chosen_chapter = random.choice(majors_3)
-                select_list.append(chosen_chapter)
-                majors_3.remove(chosen_chapter)
-                count = count+1
-            elif count == 6 or count <= 7:
-                chosen_chapter = random.choice(majors_4)
-                select_list.append(chosen_chapter)
-                majors_4.remove(chosen_chapter)
-                count = count + 1
-            else:
-                chosen_chapter = random.choice(majors_5)
-                select_list.append(chosen_chapter)
-                majors_5.remove(chosen_chapter)
+    # Get all the chapters valid to our query
+    list_of_chapters: List[str] = []
+    pool_to_select_from: List[str] = []
 
-    if part_count == "4":
-        while len(select_list) < 9:
-            count = len(select_list)
-            if count <=6:
-                chosen_chapter = random.choice(majors_4)
-                select_list.append(chosen_chapter)
-                majors_4.remove(chosen_chapter)
-                count = count+1
-            elif count == 6 or count <= 7:
-                chosen_chapter = random.choice(majors_5)
-                select_list.append(chosen_chapter)
-                majors_5.remove(chosen_chapter)
-                count = count + 1
-            else:
-                chosen_chapter = random.choice(majors_6)
-                select_list.append(chosen_chapter)
-                majors_6.remove(chosen_chapter)
+    # Starting from lower parts, moving up to more parts...
+    for participant_number, chapters in chapters_by_parts_dict.items():
 
-    if part_count == "5":
-        while len(select_list) < 9:
-            count = len(select_list)
-            if count <=6:
-                chosen_chapter = random.choice(majors_5)
-                select_list.append(chosen_chapter)
-                majors_5.remove(chosen_chapter)
-                count = count+1
-            elif count == 6 or count <= 7:
-                chosen_chapter = random.choice(majors_6)
-                select_list.append(chosen_chapter)
-                majors_6.remove(chosen_chapter)
-                count = count + 1
-            else:
-                chosen_chapter = random.choice(majors_7)
-                select_list.append(chosen_chapter)
-                majors_7.remove(chosen_chapter)
+        # If not enough roles, skip this MF
+        if participant_number < num_of_participants:
+            continue
 
-    if part_count == "6":
-        while len(select_list) < 9:
-            count = len(select_list)
-            if count <=6:
-                chosen_chapter = random.choice(majors_6)
-                select_list.append(chosen_chapter)
-                majors_6.remove(chosen_chapter)
-                count = count+1
-            elif count == 6 or count <= 7:
-                chosen_chapter = random.choice(majors_7)
-                select_list.append(chosen_chapter)
-                majors_7.remove(chosen_chapter)
-                count = count + 1
-            else:
-                chosen_chapter = random.choice(majors_8)
-                select_list.append(chosen_chapter)
-                majors_8.remove(chosen_chapter)
+        # Little debug message, uncomment if you want :)
+        # if participant_number > num_of_participants:
+        #     print(f"Currently have [{len(list_of_chapters)}] chapters, but we ran out of chapters from pool of chapters with {participant_number - 1} parts, Adding chapters from pool of chapters with {participant_number} parts")
 
-    if part_count == "7":
-        while len(select_list) < 9:
-            count = len(select_list)
-            if count <=6:
-                chosen_chapter = random.choice(majors_7)
-                select_list.append(chosen_chapter)
-                majors_7.remove(chosen_chapter)
-                count = count+1
-            elif count == 6 or count <= 7:
-                chosen_chapter = random.choice(majors_8)
-                select_list.append(chosen_chapter)
-                majors_8.remove(chosen_chapter)
-                count = count + 1
-            else:
-                chosen_chapter = random.choice(majors_9)
-                select_list.append(chosen_chapter)
-                majors_9.remove(chosen_chapter)
+        # Fill the selection pool
+        pool_to_select_from = chapters.copy()
 
-    if part_count == "8":
-        while len(select_list) < 9:
-            count = len(select_list)
-            if count <=6:
-                chosen_chapter = random.choice(majors_8)
-                select_list.append(chosen_chapter)
-                majors_8.remove(chosen_chapter)
-                count = count+1
-            elif count == 6 or count <= 7:
-                chosen_chapter = random.choice(majors_9)
-                select_list.append(chosen_chapter)
-                majors_9.remove(chosen_chapter)
-                count = count + 1
-            else:
-                chosen_chapter = random.choice(majors_10)
-                select_list.append(chosen_chapter)
-                majors_10.remove(chosen_chapter)
+        # Keep randomly picking from this pool until we have enough chapters or the pool is empty...
+        # When this while loop ends, we will move on to next stage of the above for loop
+        while len(pool_to_select_from) > 0:
 
-    if part_count == "9":
-        while len(select_list) < 8:
-            count = len(select_list)
-            if count <=5:
-                chosen_chapter = random.choice(majors_9)
-                select_list.append(chosen_chapter)
-                majors_9.remove(chosen_chapter)
-                count = count+1
-            elif count == 5 or count <= 6:
-                chosen_chapter = random.choice(majors_10)
-                select_list.append(chosen_chapter)
-                majors_10.remove(chosen_chapter)
-                count = count + 1
-            else:
-                chosen_chapter = random.choice(majors_11)
-                select_list.append(chosen_chapter)
-                majors_11.remove(chosen_chapter)
+            # Select a random chapter...
+            choice_index = random.randint(0, len(pool_to_select_from) - 1)
 
-    if part_count == "10":
-        while len(select_list) < 8:
-            count = len(select_list)
-            if count <=5:
-                chosen_chapter = random.choice(majors_10)
-                select_list.append(chosen_chapter)
-                majors_10.remove(chosen_chapter)
-                count = count+1
-            elif count == 5 or count <= 6:
-                chosen_chapter = random.choice(majors_11)
-                select_list.append(chosen_chapter)
-                majors_11.remove(chosen_chapter)
-                count = count + 1
-            else:
-                chosen_chapter = random.choice(majors_12)
-                select_list.append(chosen_chapter)
-                majors_12.remove(chosen_chapter)
+            # Remove the choice from the list, then we'll examine it 👁️🔎
+            chapter: str = pool_to_select_from.pop(choice_index)
 
-    if part_count == "11":
-        while len(select_list) < 6:
-            count = len(select_list)
-            if count <=1:
-                chosen_chapter = random.choice(majors_11)
-                select_list.append(chosen_chapter)
-                majors_11.remove(chosen_chapter)
-                count = count+1
-            elif count == 2 or count <= 5:
-                chosen_chapter = random.choice(majors_12)
-                select_list.append(chosen_chapter)
-                majors_12.remove(chosen_chapter)
-                count = count + 1
-            else:
-                chosen_chapter = random.choice(majors_13)
-                select_list.append(chosen_chapter)
-                majors_13.remove(chosen_chapter)
+            # If there are banned chapters, and this chapter is in it, then move on to next loop
+            if banned_chapters and chapter in banned_chapters:
+                continue
 
-    if part_count == "12":
-        while len(select_list) < 7:
-            count = len(select_list)
-            if count <=3:
-                chosen_chapter = random.choice(majors_12)
-                select_list.append(chosen_chapter)
-                majors_12.remove(chosen_chapter)
-                count = count + 1
+            # This baby is good to stick in the oven
+            list_of_chapters.append(chapter)
+            if len(list_of_chapters) >= list_size:
+                # When we use a return, we end all the loops we are in for this function
+                list_of_chapters.sort()
+                return list_of_chapters
 
-            else:
-                chosen_chapter = random.choice(majors_7)
-                select_list.append(chosen_chapter)
-                majors_7.remove(chosen_chapter)
-                count = count + 1
+    # Return da list (sorted)
+    # This would onl y occur if the list_size input was shorter than the total available pool of chapters available to select from
+    # print(f"Ran out of chapters lol, you have {len(list_of_chapters)} chapters")
+    list_of_chapters.sort()
+    return list_of_chapters
 
-    if part_count == "13":
-        while len(select_list) < 3:
-            count = len(select_list)
-            if count <=3:
-                chosen_chapter = random.choice(majors_12)
-                select_list.append(chosen_chapter)
-                majors_12.remove(chosen_chapter)
-                count = count + 1
 
-list_making() #Runs function to make slection list
-select_list.sort() #Sorts selection list alpabetically
-print(select_list)
-read_count = 1 #Starts read count at 1
-while read_count <=4: #Stops program after 4 reads have been completed
-    read_chapter = input("Enter Read Chapter: ") #Allows entry of read chapter
-    select_list.remove(read_chapter)  #Removes chapter from the current selection list
-    list_making() #Reruns function to add new chapter
-    select_list.sort() #Resorts list by alpabetically
-    print(select_list)
-    read_count = read_count+1 #Adds one to read count
+def display_list_w_numbers(list: List[str]) -> None:
+    """
+    Display a list of chapters with an index number
+    The idea i have here, is you could just type a number to select a chapter.
+    """
+    if list is None or len(list) == 0:
+        print("--No chapters to display--")
+        return
+
+    for index, chapter in enumerate(list):
+        print(f"{index}: {chapter}")
+
+
+def select_chapter(chapter_index: int, chapter_list: List[str], ban_list: List[str]):
+    chapter: str | None = None
+    try:
+        chapter = chapter_list.pop(chapter_index)
+        ban_list.append(chapter)
+        print(f"Ban list so far", ban_list)
+    except Exception as err:
+        print(f"You fucked up! Tried to select from a chapter list with an invalid index! {err}")
+        raise err
+
+
+def select_chapter_menu(chapter_list: List[str], ban_list: List[str] = []):
+    """
+    Select a chapter from a list of chapters. We return a ban list whether the user inputs one or not
+    :param chapter_list: List of chapters to select from
+    :param ban_list: Chapters that have been selected or pre-chosen to not show up
+    :return:
+    """
+    menu_children: List[Menu] = []
+
+    # Set up all the menu selection options
+    for index, chapter in enumerate(chapter_list):
+        menu_children.append(Menu(f"{chapter}", None, lambda idx=index: select_chapter(idx, chapter_list, ban_list)))
+
+    # Create select chapter menu
+    menu = Menu("Select Chapter", "Select a chapter to read", None, menu_children)
+
+    # Run the menu
+    menu.menu_loop()
+
+
+def ban_chapter_menu(chapter_list: List[str], ban_list: List[str] = []) -> None:
+    user_input: str = ''
+    while user_input != 'DONE':
+        user_input = input("Type any chapter you would like to ban. Type \'DONE\' when you are finished")
+
+        # Copying this code from the Menu class
+        # TBH I should be using a menu here, but I hate the way I wrote menus RN so they can fug off
+        select_index: int = -1
+
+        # If this is a number see if it's an index number for our menu
+        if user_input.isdigit():
+            if len(chapter_list) > int(user_input) >= 0:
+                select_index = int(user_input)
+        else:
+            selected_children: List[str] = []
+            for chapter in chapter_list:
+                if user_input in chapter:
+                    selected_children.append(chapter)
+
+            # If more than one option matches, GTFO
+            if len(selected_children) > 1:
+                print("More than one option matches your input")
+                for chapter in enumerate(selected_children):
+                    print(f"{chapter}")
+                continue
+
+            # This matches with an option, select it!
+            if len(selected_children) == 1:
+                select_index = 0
+
+        if select_index is not None:
+            selected_chapter: str = chapter_list[select_index]
+            print(f"You selected \'{selected_chapter}\'")
+            ban_list.append(selected_chapter)
+
+
+def main_loop() -> None:
+    print("Hello Rosie!")
+
+    # Define lists
+    ban_list = []
+
+    # Because I like some delay (As a treat)💅🏻
+    time.sleep(1)
+
+    # Allows input for number of readers, which determines the lists from which chapters are pulled
+    # Is this a valid number?
+    part_count: str
+    try:
+        part_count = input("Please enter number of readers: ")
+    except Exception as e:
+        print(f"Ran into a problem parsing out part count {e}")
+        return
+    part_count_int = int(part_count)
+
+    all_possible_chapters = get_list_of_chapters(
+        num_of_participants=part_count_int,
+        list_size=999,
+        banned_chapters=ban_list
+    )
+    # Display all of our options to make banning easier
+    display_list_w_numbers(all_possible_chapters)
+
+    # Handle banning chapters...
+    ban_chapter_menu(
+        chapter_list=all_possible_chapters,
+        ban_list=ban_list
+    )
+
+    read_count = 0
+    while read_count < 4:  # Stops program after 4 reads have been completed
+        selection_list: List[str] = get_list_of_chapters(part_count_int, CHAPTERS_PER_ROUND, ban_list)
+        select_chapter_menu(selection_list, ban_list)
+        read_count += 1
+        print("\n---\n")
+        print(f"Reads selected so far: {read_count}")
+    print("done")
+
+
+if __name__ == "__main__":
+    main_loop()

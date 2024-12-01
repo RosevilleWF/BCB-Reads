@@ -1,0 +1,2 @@
+# We don't want an entire python install to be committed lol
+/venv/
