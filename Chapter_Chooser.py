@@ -225,7 +225,7 @@ def ban_chapter_menu(chapter_list: List[str], ban_list=None) -> None:
                 select_index = chapter_match_indexes[0]
 
         # Did we find an index? Did we make a selection?
-        if select_index is not None:
+        if select_index >= 0:
             selected_chapter: str = chapter_list[select_index]
             print(f"You selected \'{selected_chapter}\'")
             ban_list.append(selected_chapter)
