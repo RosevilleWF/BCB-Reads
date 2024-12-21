@@ -16,7 +16,7 @@ majors_4 = ["A Better You", "Adult Supervision", "Blind Date", "Catty Remarks", 
             "Just Beautiful", "Merry Snow Day", "Minicomics 11-20", "Onwards to Adventure", "Safe Boundaries",
             "Time Out"]
 majors_5 = ["Another Shoulder", "Behind Closed Doors", "Blood Lust", "Boy Toy", "Call Waiting", "Carry Me", "Carry On",
-            "Carry On", "Casting Call", "Clean Slate", "College Material", "Critical Hit", "Eternal Flame",
+            "Casting Call", "Clean Slate", "College Material", "Critical Hit", "Eternal Flame",
             "Farewell, Middle School", "Featured Attraction", "Fuel Economy", "Gaming Rivalry", "Good Enough",
             "Guest of Honor", "Left Behind", "Link Play", "Mother's Day", "New Beginnings", "New Year's Resolution",
             "Off to the Movies", "Piece of Cake", "Simple Pleasures", "Small Fry", "Starting Over",
@@ -138,8 +138,19 @@ def display_list_w_numbers(list: List[str]) -> None:
         print(f"{index}: {chapter}")
 
 
-def select_chapter(chapter_index: int, chapter_list: List[str], ban_list: List[str]):
-    chapter: str | None = None
+def select_chapter(
+        chapter_index: int,
+        chapter_list: List[str],
+        ban_list: List[str]) -> None:
+    """
+    Perform all the steps required to "select a chapter"
+    This function is stored in a "select_chapter_menu" so when that option is selected,
+    this function is run
+    :param chapter_index: Which spot in the list of chapters is the chapter we are selecting?
+    :param chapter_list: Which list of chapters are we selecting from?
+    :param ban_list: We need to add the chapter being selected to the banned list of chapters
+    :return:
+    """
     try:
         chapter = chapter_list.pop(chapter_index)
         ban_list.append(chapter)
@@ -149,18 +160,20 @@ def select_chapter(chapter_index: int, chapter_list: List[str], ban_list: List[s
         raise err
 
 
-def select_chapter_menu(chapter_list: List[str], ban_list: List[str] = []):
+def select_chapter_menu(chapter_list: List[str], ban_list=None) -> None:
     """
     Select a chapter from a list of chapters. We return a ban list whether the user inputs one or not
     :param chapter_list: List of chapters to select from
     :param ban_list: Chapters that have been selected or pre-chosen to not show up
-    :return:
     """
+    if ban_list is None:
+        ban_list = []
     menu_children: List[Menu] = []
 
     # Set up all the menu selection options
     for index, chapter in enumerate(chapter_list):
-        menu_children.append(Menu(f"{chapter}", None, lambda idx=index: select_chapter(idx, chapter_list, ban_list)))
+        select_chapter_function = lambda idx=index: select_chapter(idx, chapter_list, ban_list)
+        menu_children.append(Menu(f"{chapter}", '', select_chapter_function))
 
     # Create select chapter menu
     menu = Menu("Select Chapter", "Select a chapter to read", None, menu_children)
@@ -169,7 +182,15 @@ def select_chapter_menu(chapter_list: List[str], ban_list: List[str] = []):
     menu.menu_loop()
 
 
-def ban_chapter_menu(chapter_list: List[str], ban_list: List[str] = []) -> None:
+def ban_chapter_menu(chapter_list: List[str], ban_list=None) -> None:
+    """
+    The menu for banning chapters.
+    This menu loops until the user says "DONE"
+    :param chapter_list: The list of chapters we are selecting from
+    :param ban_list: The list of chapters we are not allowed to select/omit
+    """
+    if ban_list is None:
+        ban_list = []
     user_input: str = ''
     while user_input != 'DONE':
         user_input = input("Type any chapter you would like to ban. Type \'DONE\' when you are finished")
@@ -178,31 +199,37 @@ def ban_chapter_menu(chapter_list: List[str], ban_list: List[str] = []) -> None:
         # TBH I should be using a menu here, but I hate the way I wrote menus RN so they can fug off
         select_index: int = -1
 
-        # If this is a number see if it's an index number for our menu
+        # If the user gave us a number see if it's an index number for our
+        # list of chapters
         if user_input.isdigit():
             if len(chapter_list) > int(user_input) >= 0:
                 select_index = int(user_input)
         else:
-            selected_children: List[str] = []
-            for chapter in chapter_list:
+            # See if any chapters match, if they do, save their index
+            chapter_match_indexes: List[int] = []
+
+            # Index refers to spot in the list of chapter.
+            for index, chapter in enumerate(chapter_list):
                 if user_input in chapter:
-                    selected_children.append(chapter)
+                    chapter_match_indexes.append(index)
 
             # If more than one option matches, GTFO
-            if len(selected_children) > 1:
+            if len(chapter_match_indexes) > 1:
                 print("More than one option matches your input")
-                for chapter in enumerate(selected_children):
-                    print(f"{chapter}")
+                for chapter in enumerate(chapter_match_indexes):
+                    print(f"{chapter[1]}")
                 continue
 
             # This matches with an option, select it!
-            if len(selected_children) == 1:
-                select_index = 0
+            if len(chapter_match_indexes) == 1:
+                select_index = chapter_match_indexes[0]
 
+        # Did we find an index? Did we make a selection?
         if select_index is not None:
             selected_chapter: str = chapter_list[select_index]
             print(f"You selected \'{selected_chapter}\'")
             ban_list.append(selected_chapter)
+            print(f"Current ban list {ban_list}")
 
 
 def main_loop() -> None:

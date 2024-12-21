@@ -6,7 +6,7 @@ class Menu:
     # Any variable declared in __init__ can be referenced with self.*
     def __init__(self,
                  display_name: str,
-                 message: str | None,
+                 message: str,
                  action: Callable = None,
                  child_menus=None,  # Array of menus please,
                  ):
